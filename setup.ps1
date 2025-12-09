@@ -43,27 +43,31 @@ if (-not (Test-Path ".\requirements.txt")) {
 Write-Host "📥 Installing base dependencies from requirements.txt..." -ForegroundColor Cyan
 pip install -r requirements.txt
 
-Write-Host "🧠 Enforcing GPU build of llama.cpp (CUDA)..." -ForegroundColor Cyan
+Write-Host "🧠 Enforcing GPU build of llama.cpp (CUDA 12.1 wheel if possible)..." -ForegroundColor Cyan
 
-# Remove CPU-only wheel if present
+# Remove any existing CPU build
 pip uninstall -y llama-cpp-python | Out-Null
 
-# Try CUDA 12.1 wheel (adjust to cu124 if needed for your CUDA)
+# Use official CUDA 12.1 wheel index
+$env:CMAKE_ARGS = "-DGGML_CUDA=on"
+
 try {
-    pip install llama-cpp-python-cu121
-    Write-Host "✅ Installed llama-cpp-python-cu121 (CUDA GPU wheel)." -ForegroundColor Green
+    pip install --force-reinstall --no-cache-dir `
+        llama-cpp-python `
+        --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121
+    Write-Host "✅ Installed llama-cpp-python with CUDA (cu121 wheel)." -ForegroundColor Green
 }
 catch {
-    Write-Host "⚠️ Failed to install llama-cpp-python-cu121. Falling back to CPU llama-cpp-python (will be slower)." -ForegroundColor Yellow
-    pip install llama-cpp-python
+    Write-Host "⚠️ Failed to install CUDA wheel; falling back to CPU build." -ForegroundColor Yellow
+    pip install --force-reinstall --no-cache-dir llama-cpp-python
 }
 
 Write-Host ""
 Write-Host "✨ Setup complete." -ForegroundColor Green
-Write-Host "You can also run manually later with:" -ForegroundColor Green
+Write-Host "You can run manually later with:" -ForegroundColor Green
 Write-Host "  .\.venv\Scripts\activate" -ForegroundColor Yellow
 Write-Host "  python mirror_pond.py --model `"$ModelPath`" --port $Port --gpu-layers $GpuLayers" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "🚀 Launching Mirror Pond now on GPU (if available)..." -ForegroundColor Green
+Write-Host "🚀 Launching Mirror Pond now..." -ForegroundColor Green
 
 python mirror_pond.py --model "$ModelPath" --port $Port --gpu-layers $GpuLayers
