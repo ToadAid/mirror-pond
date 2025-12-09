@@ -10,7 +10,7 @@ GPU_LAYERS="${3:--1}"
 echo "🪞 Mirror Pond — Linux/macOS GPU Installer"
 echo "Model: $MODEL_PATH"
 echo "Port : $PORT"
-echo "GPU  : $GPU_LAYERS layers ( -1 = as many as possible )"
+echo "GPU  : $GPU_LAYERS layers (-1 = as many as possible)"
 echo ""
 
 if ! command -v python3 >/dev/null 2>&1; then
@@ -36,26 +36,29 @@ fi
 echo "📥 Installing base dependencies from requirements.txt..."
 pip install -r requirements.txt
 
-echo "🧠 Enforcing GPU build of llama.cpp (CUDA)..."
-# Remove any CPU-only wheel if present
+echo "🧠 Enforcing GPU build of llama.cpp (CUDA 12.1 wheel if possible)..."
+# Remove any existing CPU build (if present)
 pip uninstall -y llama-cpp-python || true
 
-# Try CUDA 12.1 wheel (most common for 3090 setups)
-if pip install llama-cpp-python-cu121; then
-  echo "✅ Installed llama-cpp-python-cu121 (CUDA GPU wheel)."
+# Use official prebuilt CUDA wheel index
+export CMAKE_ARGS="-DGGML_CUDA=on"
+
+if pip install --force-reinstall --no-cache-dir \
+    llama-cpp-python \
+    --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu121; then
+  echo "✅ Installed llama-cpp-python with CUDA (cu121 wheel)."
 else
-  echo "⚠️ Failed to install llama-cpp-python-cu121."
-  echo "   Falling back to CPU llama-cpp-python (will be slower)."
-  pip install llama-cpp-python
+  echo "⚠️ Failed to install CUDA wheel; falling back to CPU build."
+  pip install --force-reinstall --no-cache-dir llama-cpp-python
 fi
 
 echo ""
 echo "✨ Setup complete."
-echo "You can also run manually later with:"
+echo "You can run manually later with:"
 echo "  source .venv/bin/activate"
 echo "  python mirror_pond.py --model \"$MODEL_PATH\" --port $PORT --gpu-layers $GPU_LAYERS"
 echo ""
-echo "🚀 Launching Mirror Pond now on GPU (if available)..."
+echo "🚀 Launching Mirror Pond now..."
 python mirror_pond.py \
   --model "$MODEL_PATH" \
   --port "$PORT" \
