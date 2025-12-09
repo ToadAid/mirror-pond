@@ -1,9 +1,3 @@
-
----
-
-## 3️⃣ setup.sh (Linux / macOS)
-
-```bash
 #!/usr/bin/env bash
 # setup.sh — Installer for Mirror Pond (Linux/macOS)
 
