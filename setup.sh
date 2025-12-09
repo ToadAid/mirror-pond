@@ -34,6 +34,10 @@ fi
 echo "📥 Installing dependencies..."
 pip install -r requirements.txt
 
+echo "🧠 Installing GPU version of llama.cpp..."
+pip uninstall -y llama-cpp-python || true
+pip install llama-cpp-python-cu121
+
 echo ""
 echo "✨ Setup complete."
 echo "Run manually:"
