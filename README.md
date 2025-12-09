@@ -26,6 +26,7 @@ Your thoughts stay on your machine.
 * 🔒 **Fully offline** (Air-gapped compatible)
 * ⚡ FastAPI + Uvicorn backend
 * 🧩 Optional: GPU acceleration via llama-cpp-python CUDA wheels
+<img width="984" height="854" alt="image" src="https://github.com/user-attachments/assets/d5bde2cc-cf91-4734-9283-526dc1a71e6c" />
 
 ---
 
